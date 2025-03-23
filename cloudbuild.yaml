@@ -54,3 +54,6 @@ steps:
 
 images:
   - 'us-central1-docker.pkg.dev/chrome-unity-454609-g5/container-images/hello-world:latest'
+
+options:
+  logging: NONE
