@@ -5,7 +5,7 @@ import pandas as pd
 app = Flask(__name__)
 model = xgb.Booster({'nthread': 4})
 # Adjust the path to where your model is stored within the models directory
-model.load_model('models/model.pkl')
+model.load_model('model.pkl')
 
 @app.route('/predict', methods=['POST'])
 def predict():
