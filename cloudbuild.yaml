@@ -1,46 +1,56 @@
 steps:
   # Step to install modelscan and scan the model file before building the image
-  - name: 'python:3.8-slim'
+  - name: 'python:3.11-slim'
     entrypoint: 'bash'
     args:
       - '-c'
       - |
         echo "Installing modelscan..."
         pip install modelscan
-        echo "Scanning models/model.pkl..."
-        # Check if model.pkl exists in the models/ directory
-        if [ ! -f "models/model.pkl" ]; then
-          echo "models/model.pkl does not exist."
-          exit 1
-        fi
-        # Run the scan command on models/model.pkl
-        scan_output=$(modelscan -p models/model.pkl)
-        echo "$scan_output"
-        # Check if the output contains the line "No issues found! 🎉"
-        if ! echo "$scan_output" | grep -q "No issues found! 🎉"; then
-          echo "Model scan failed with issues for models/model.pkl."
-          exit 1
-        fi
+        shopt -s nullglob
+        for model in *.pkl; do
+          echo "Scanning $model..."
+          scan_output=$(modelscan -p $model)
+          echo "$scan_output"
+          if ! echo "$scan_output" | grep -q "No issues found! 🎉"; then
+            echo "Model scan failed with issues for $model."
+            exit 1
+          fi
+        done
     id: 'scan-model'
-    waitFor: ['-']
 
   # Build the Docker image
   - name: 'gcr.io/cloud-builders/docker'
-    args: ['build', '-t', 'gcr.io/$PROJECT_ID/my-model-service:$SHORT_SHA', '.']
+    args: ['build', '-t', 'us-central1-docker.pkg.dev/ford-f6b9685091fd6e2a56568b54/ford-container-images/hello-world:latest', '.']
     id: 'build-image'
     waitFor: ['scan-model']
 
   # Push the Docker image to Google Container Registry
   - name: 'gcr.io/cloud-builders/docker'
-    args: ['push', 'gcr.io/$PROJECT_ID/my-model-service:$SHORT_SHA']
+    args: ['push', 'us-central1-docker.pkg.dev/ford-f6b9685091fd6e2a56568b54/ford-container-images/hello-world:latest']
     id: 'push-image'
     waitFor: ['build-image']
 
   # Deploy the image to Cloud Run
   - name: 'gcr.io/cloud-builders/gcloud'
-    args: ['run', 'deploy', 'my-model-service', '--image', 'gcr.io/$PROJECT_ID/my-model-service:$SHORT_SHA', '--region', 'us-central1', '--platform', 'managed']
+    args:
+      - 'run'
+      - 'deploy'
+      - 'hello-world-service'
+      - '--image'
+      - 'us-central1-docker.pkg.dev/ford-f6b9685091fd6e2a56568b54/ford-container-images/hello-world:latest'
+      - '--service-account'
+      - >-
+        sa-pipeline@ford-f6b9685091fd6e2a56568b54.iam.gserviceaccount.com
+      - '--project'
+      - ford-f6b9685091fd6e2a56568b54
+      - '--region'
+      - 'us-central1'
+      - '--platform'
+      - 'managed'
+      - '--allow-unauthenticated'
     id: 'deploy-service'
     waitFor: ['push-image']
-images:
-  - 'gcr.io/$PROJECT_ID/my-model-service:$SHORT_SHA'
 
+images:
+  - 'us-central1-docker.pkg.dev/ford-f6b9685091fd6e2a56568b54/ford-container-images/hello-world:latest'
