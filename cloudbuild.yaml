@@ -21,13 +21,13 @@ steps:
 
   # Build the Docker image
   - name: 'gcr.io/cloud-builders/docker'
-    args: ['build', '-t', 'us-central1-docker.pkg.dev/chrome-unity-454609-g5/container-images/model:latest', '.']
+    args: ['build', '-t', 'us-central1-docker.pkg.dev/chrome-unity-454609-g5/container-images/hello-world:latest', '.']
     id: 'build-image'
     waitFor: ['scan-model']
 
   # Push the Docker image to Google Container Registry
   - name: 'gcr.io/cloud-builders/docker'
-    args: ['push', 'us-central1-docker.pkg.dev/chrome-unity-454609-g5/container-images/model:latest']
+    args: ['push', 'us-central1-docker.pkg.dev/chrome-unity-454609-g5/container-images/hello-world:latest']
     id: 'push-image'
     waitFor: ['build-image']
 
@@ -38,7 +38,7 @@ steps:
       - 'deploy'
       - 'ml-model'
       - '--image'
-      - 'us-central1-docker.pkg.dev/chrome-unity-454609-g5/container-images/model:latest'
+      - 'us-central1-docker.pkg.dev/chrome-unity-454609-g5/container-images/hello-world:latest'
       - '--service-account'
       - >-
         427896647379-compute@developer.gserviceaccount.com
@@ -53,7 +53,7 @@ steps:
     waitFor: ['push-image']
 
 images:
-  - 'us-central1-docker.pkg.dev/chrome-unity-454609-g5/container-images/model:latest'
+  - 'us-central1-docker.pkg.dev/chrome-unity-454609-g5/container-images/hello-world:latest'
 
 options:
   logging: CLOUD_LOGGING_ONLY
