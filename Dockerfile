@@ -1,19 +1,13 @@
-FROM registry.access.redhat.com/ubi8/python-311
+FROM python:3.11-slim
 
 # Set the working directory in the container
 WORKDIR /app
 
-# Copy the dependencies file to the working directory
-COPY requirements.txt .
+# Copy the simple Flask application to the working directory
+COPY main.py .
 
-# Install any dependencies
-RUN pip install --no-cache-dir -r requirements.txt
-
-# Copy the models directory to the working directory
-COPY models/ models/
-
-# Copy the rest of the application to the working directory
-COPY . .
+# Install Flask
+RUN pip install Flask
 
 # Command to run on container start
 CMD ["python", "main.py"]
