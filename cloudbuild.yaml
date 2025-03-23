@@ -36,7 +36,7 @@ steps:
     args:
       - 'run'
       - 'deploy'
-      - 'ML-MODEL'
+      - 'ml-model'
       - '--image'
       - 'us-central1-docker.pkg.dev/chrome-unity-454609-g5/container-images/model:latest'
       - '--service-account'
