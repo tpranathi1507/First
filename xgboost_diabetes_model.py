@@ -4,7 +4,7 @@ from sklearn.model_selection import train_test_split
 
 
 def get_data():
-    dataset = loadtxt("/Users/TPRANATH/Modelscan-pickle3/pima-indians-diabetes.csv", delimiter=",")
+    dataset = loadtxt("pima-indians-diabetes.csv", delimiter=",")
     X = dataset[:, 0:8]
     Y = dataset[:, 8]
     # split data into train and test sets
